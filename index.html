@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f1e7">
+<title>Prayer Topics</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --bg: #f6f1e7;
+    --card: #fffdf8;
+    --ink: #2b2620;
+    --muted: #7a7166;
+    --line: #e6dfd2;
+    --accent: #6b4f2a;
+    --accent-ink: #fffaf0;
+    --soft: #efe6d6;
+    --good: #3f7a4f;
+    --danger: #a33d3d;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(40,30,10,.06), 0 6px 20px rgba(40,30,10,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #171512;
+      --card: #211e1a;
+      --ink: #efe8dc;
+      --muted: #a39a8c;
+      --line: #322d27;
+      --accent: #d5b07c;
+      --accent-ink: #1c1712;
+      --soft: #2a251f;
+      --good: #7fc08f;
+      --danger: #e08585;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    font-size: 17px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .app { max-width: 640px; margin: 0 auto; padding: 20px 16px 48px; }
+
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  h1 { font-size: 28px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: 15px; margin: 0 0 18px; }
+  .verse { font-style: italic; color: var(--muted); font-size: 15px; margin: 0 0 20px; border-left: 3px solid var(--line); padding-left: 12px; }
+
+  button {
+    font: inherit;
+    color: var(--ink);
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+    line-height: 1.2;
+  }
+  button:active { transform: translateY(1px); }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  button.ghost { background: transparent; border-color: transparent; color: var(--muted); padding: 6px 8px; }
+  button.danger { color: var(--danger); }
+  button.small { font-size: 14px; padding: 6px 11px; }
+  button:disabled { opacity: .45; cursor: default; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .toolbar .spacer { flex: 1; }
+
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px; cursor: pointer; user-select: none;
+  }
+  .card-head .title { flex: 1; font-size: 18px; font-weight: 600; }
+  .card-head .meta { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .card-head .chev { color: var(--muted); transition: transform .15s; }
+  .card.open .chev { transform: rotate(90deg); }
+  .card-body { display: none; padding: 0 16px 16px; border-top: 1px dashed var(--line); }
+  .card.open .card-body { display: block; }
+  .desc { color: var(--muted); margin: 12px 0 14px; white-space: pre-wrap; }
+  .desc:empty { display: none; }
+
+  .notes h4 { margin: 14px 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+  .note { padding: 10px 12px; background: var(--soft); border-radius: 10px; margin-bottom: 8px; position: relative; }
+  .note .date { font-size: 13px; color: var(--muted); margin-bottom: 2px; display: flex; justify-content: space-between; gap: 8px; }
+  .note .text { white-space: pre-wrap; }
+  .note .del { background: none; border: none; color: var(--muted); padding: 0 4px; font-size: 13px; }
+  .note .del:hover { color: var(--danger); }
+  .empty { color: var(--muted); font-style: italic; font-size: 15px; }
+
+  .note-form { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  textarea, input[type=text] {
+    font: inherit; color: var(--ink);
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; width: 100%; resize: vertical;
+  }
+  textarea { min-height: 70px; }
+  textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .row .spacer { flex: 1; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+
+  /* modal */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    display: none; align-items: flex-end; justify-content: center; z-index: 10;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: var(--card); color: var(--ink);
+    width: 100%; max-width: 640px; border-radius: 18px 18px 0 0;
+    padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+    max-height: 90vh; overflow: auto;
+  }
+  @media (min-width: 700px) {
+    .modal-bg { align-items: center; }
+    .modal { border-radius: 18px; }
+  }
+  .modal h2 { margin: 0 0 12px; font-size: 20px; }
+  label { display: block; font-size: 14px; color: var(--muted); margin: 10px 0 4px; }
+
+  /* pray mode */
+  .pray { display: none; }
+  body.praying .home { display: none; }
+  body.praying .pray { display: block; }
+  .pray-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 20px;
+    box-shadow: var(--shadow); padding: 28px 22px; min-height: 55vh;
+    display: flex; flex-direction: column;
+  }
+  .pray-card .counter { color: var(--muted); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; }
+  .pray-card h2 { font-size: 30px; margin: 10px 0 8px; font-weight: 600; line-height: 1.2; }
+  .pray-card .desc { font-size: 17px; margin-top: 0; }
+  .pray-card .recent h4 { margin: 18px 0 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .pray-card .fill { flex: 1; }
+  .pray-nav { display: flex; gap: 8px; margin-top: 18px; align-items: center; }
+  .pray-nav .spacer { flex: 1; }
+  .progress { height: 4px; background: var(--line); border-radius: 2px; margin: 14px 0 0; overflow: hidden; }
+  .progress > div { height: 100%; background: var(--accent); transition: width .2s; }
+  .done-card { text-align: center; padding: 40px 20px; }
+  .done-card h2 { font-size: 28px; margin-bottom: 8px; }
+
+  .hidden { display: none !important; }
+  .footer { margin-top: 26px; color: var(--muted); font-size: 13px; text-align: center; }
+  .footer button { font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ HOME ============ -->
+  <section class="home">
+    <header>
+      <h1>Prayer Topics</h1>
+      <button class="ghost small" id="btn-add">+ Add topic</button>
+    </header>
+    <p class="sub" id="summary"></p>
+    <p class="verse">“Trust in the Lord with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths.” — Proverbs 3:5–6</p>
+
+    <div class="toolbar">
+      <button class="primary" id="btn-pray">Pray through all</button>
+      <button id="btn-collapse">Collapse all</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+    <div class="footer">
+      Saved in this browser only.
+      <button class="ghost" id="btn-export">Export</button>
+      <button class="ghost" id="btn-import">Import</button>
+      <input type="file" id="file-import" accept="application/json" class="hidden">
+    </div>
+  </section>
+
+  <!-- ============ PRAY MODE ============ -->
+  <section class="pray">
+    <div class="toolbar">
+      <button class="ghost" id="btn-exit-pray">← Back</button>
+      <span class="spacer"></span>
+    </div>
+    <div id="pray-view"></div>
+  </section>
+
+</div>
+
+<!-- ============ EDIT MODAL ============ -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">Add topic</h2>
+    <label for="f-title">Title</label>
+    <input type="text" id="f-title" placeholder="e.g. My wife">
+    <label for="f-desc">What you're asking God for (optional)</label>
+    <textarea id="f-desc" placeholder="A few words to help you pray for this topic."></textarea>
+    <div class="row" style="margin-top:14px">
+      <button class="ghost danger" id="modal-delete">Delete</button>
+      <span class="spacer"></span>
+      <button id="modal-cancel">Cancel</button>
+      <button class="primary" id="modal-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const STORAGE_KEY = 'prayer-topics.v1';
+
+  const SEED = [
+    { title: 'My family',
+      desc: 'For their health, their faith, and for God to draw each of them closer to himself.' },
+    { title: 'My wife',
+      desc: 'For her walk with God, her joy, and for us to grow together in love and unity.' },
+    { title: 'Our future children',
+      desc: 'For the children God may give us, that they would know and love him from an early age.' },
+    { title: 'Clarity about community & church',
+      desc: 'For clear direction about which church and community to be part of in this next season, and for peace as I wait.' },
+    { title: 'My relationship with God',
+      desc: 'To know him more deeply, to hear his voice, and to love him with all my heart.' },
+    { title: 'Disciples I\'m pouring into',
+      desc: 'For the people I\'m discipling: that they would grow in faith, and that I\'d have wisdom and patience.' },
+    { title: 'The Ephesus house',
+      desc: 'For God\'s leading, protection, and blessing over the Ephesus house and everyone in it.' },
+    { title: 'Neighbors & nations',
+      desc: 'For my neighbors to encounter Jesus, and for the gospel to reach every nation.' },
+    { title: 'Continued clarity in God\'s leading',
+      desc: 'That God would keep leading and guiding me clearly, and that I would follow him with an open hand.' },
+  ];
+
+  // ---------- state ----------
+  const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data && Array.isArray(data.topics)) return data;
+      }
+    } catch (e) { /* ignore */ }
+    return { topics: SEED.map(t => ({ id: uid(), title: t.title, desc: t.desc, notes: [], lastPrayed: null })), open: {} };
+  }
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+  }
+  let state = load();
+  const $ = sel => document.querySelector(sel);
+
+  // ---------- helpers ----------
+  const todayKey = () => new Date().toISOString().slice(0, 10);
+  function fmtDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: d.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' });
+  }
+  function ago(iso) {
+    if (!iso) return 'not yet prayed';
+    const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+    if (days <= 0) return 'prayed today';
+    if (days === 1) return 'prayed yesterday';
+    return `prayed ${days} days ago`;
+  }
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function prayedToday(t) { return t.lastPrayed && t.lastPrayed.slice(0, 10) === todayKey(); }
+  function markPrayed(t) { t.lastPrayed = new Date().toISOString(); save(); }
+
+  // ---------- home render ----------
+  function renderSummary() {
+    const total = state.topics.length;
+    const done = state.topics.filter(prayedToday).length;
+    $('#summary').textContent = total === 0
+      ? 'No topics yet. Add one to get started.'
+      : done === total ? `You\'ve prayed through all ${total} topics today.` : `${done} of ${total} prayed for today.`;
+  }
+
+  function renderList() {
+    const list = $('#list');
+    list.innerHTML = '';
+    state.topics.forEach((t, i) => {
+      const card = document.createElement('div');
+      card.className = 'card' + (state.open[t.id] ? ' open' : '');
+      card.dataset.id = t.id;
+      const notes = [...t.notes].sort((a, b) => b.date.localeCompare(a.date));
+      card.innerHTML = `
+        <div class="card-head">
+          <span class="chev">▸</span>
+          <span class="title">${esc(t.title)}</span>
+          <span class="meta">${prayedToday(t) ? '✓ today' : esc(ago(t.lastPrayed))}</span>
+        </div>
+        <div class="card-body">
+          <p class="desc">${esc(t.desc)}</p>
+          <div class="notes">
+            <h4>Updates &amp; answers</h4>
+            ${notes.length ? notes.map(n => `
+              <div class="note" data-note="${n.id}">
+                <div class="date"><span>${esc(fmtDate(n.date))}</span><button class="del" title="Delete note">✕</button></div>
+                <div class="text">${esc(n.text)}</div>
+              </div>`).join('') : '<p class="empty">No updates yet. Jot down what you\'re asking, what you sense, or how God answers.</p>'}
+            <form class="note-form">
+              <textarea placeholder="Add an update, an answer, or a specific request…" rows="2"></textarea>
+              <div class="row"><span class="spacer"></span><button type="submit" class="small">Add update</button></div>
+            </form>
+          </div>
+          <div class="actions">
+            <button class="small ${prayedToday(t) ? '' : 'primary'}" data-act="prayed">${prayedToday(t) ? 'Prayed ✓' : 'Mark prayed'}</button>
+            <button class="small" data-act="edit">Edit</button>
+            <button class="small ghost" data-act="up" ${i === 0 ? 'disabled' : ''}>↑</button>
+            <button class="small ghost" data-act="down" ${i === state.topics.length - 1 ? 'disabled' : ''}>↓</button>
+          </div>
+        </div>`;
+      list.appendChild(card);
+    });
+    renderSummary();
+  }
+
+  function findTopic(id) { return state.topics.find(t => t.id === id); }
+
+  $('#list').addEventListener('click', e => {
+    const card = e.target.closest('.card'); if (!card) return;
+    const t = findTopic(card.dataset.id); if (!t) return;
+
+    if (e.target.closest('.card-head')) {
+      state.open[t.id] = !state.open[t.id];
+      save(); renderList(); return;
+    }
+    const del = e.target.closest('.note .del');
+    if (del) {
+      const noteEl = del.closest('.note');
+      if (confirm('Delete this update?')) {
+        t.notes = t.notes.filter(n => n.id !== noteEl.dataset.note);
+        save(); renderList();
+      }
+      return;
+    }
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (!act) return;
+    const i = state.topics.indexOf(t);
+    if (act === 'prayed') { if (prayedToday(t)) t.lastPrayed = null; else markPrayed(t); save(); renderList(); }
+    if (act === 'edit') openModal(t);
+    if (act === 'up' && i > 0) { state.topics.splice(i, 1); state.topics.splice(i - 1, 0, t); save(); renderList(); }
+    if (act === 'down' && i < state.topics.length - 1) { state.topics.splice(i, 1); state.topics.splice(i + 1, 0, t); save(); renderList(); }
+  });
+
+  $('#list').addEventListener('submit', e => {
+    e.preventDefault();
+    const card = e.target.closest('.card'); const t = findTopic(card.dataset.id);
+    const ta = e.target.querySelector('textarea');
+    const text = ta.value.trim(); if (!text) return;
+    t.notes.push({ id: uid(), date: new Date().toISOString(), text });
+    save(); renderList();
+  });
+
+  $('#btn-collapse').addEventListener('click', () => { state.open = {}; save(); renderList(); });
+
+  // ---------- modal ----------
+  let editing = null;
+  function openModal(t) {
+    editing = t || null;
+    $('#modal-title').textContent = t ? 'Edit topic' : 'Add topic';
+    $('#f-title').value = t ? t.title : '';
+    $('#f-desc').value = t ? t.desc : '';
+    $('#modal-delete').classList.toggle('hidden', !t);
+    $('#modal').classList.add('show');
+    setTimeout(() => $('#f-title').focus(), 50);
+  }
+  function closeModal() { $('#modal').classList.remove('show'); editing = null; }
+  $('#btn-add').addEventListener('click', () => openModal(null));
+  $('#modal-cancel').addEventListener('click', closeModal);
+  $('#modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  $('#modal-save').addEventListener('click', () => {
+    const title = $('#f-title').value.trim();
+    const desc = $('#f-desc').value.trim();
+    if (!title) { $('#f-title').focus(); return; }
+    if (editing) { editing.title = title; editing.desc = desc; }
+    else { const t = { id: uid(), title, desc, notes: [], lastPrayed: null }; state.topics.push(t); state.open[t.id] = true; }
+    save(); renderList(); closeModal();
+  });
+  $('#modal-delete').addEventListener('click', () => {
+    if (!editing) return;
+    if (confirm(`Delete "${editing.title}" and its updates?`)) {
+      state.topics = state.topics.filter(t => t !== editing);
+      delete state.open[editing.id];
+      save(); renderList(); closeModal();
+    }
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#modal').classList.contains('show')) closeModal(); });
+
+  // ---------- pray mode ----------
+  let prayIdx = 0;
+  let prayOrder = [];
+  function startPray() {
+    if (!state.topics.length) { openModal(null); return; }
+    // Start with topics not yet prayed today, then the rest, keeping order.
+    const todo = state.topics.filter(t => !prayedToday(t));
+    prayOrder = (todo.length ? todo : state.topics).map(t => t.id);
+    prayIdx = 0;
+    document.body.classList.add('praying');
+    renderPray();
+    window.scrollTo(0, 0);
+  }
+  function exitPray() { document.body.classList.remove('praying'); renderList(); }
+
+  function renderPray() {
+    const view = $('#pray-view');
+    const n = prayOrder.length;
+    if (prayIdx >= n) {
+      view.innerHTML = `
+        <div class="pray-card done-card">
+          <div class="fill"></div>
+          <h2>Amen.</h2>
+          <p class="sub">You prayed through ${n} topic${n === 1 ? '' : 's'}. “Cast all your anxieties on him, because he cares for you.” (1 Peter 5:7)</p>
+          <div class="fill"></div>
+          <div class="row" style="justify-content:center"><button class="primary" id="pray-done">Back to topics</button></div>
+        </div>`;
+      $('#pray-done').addEventListener('click', exitPray);
+      return;
+    }
+    const t = findTopic(prayOrder[prayIdx]);
+    if (!t) { prayIdx++; renderPray(); return; }
+    const recent = [...t.notes].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+    view.innerHTML = `
+      <div class="pray-card">
+        <div class="counter">${prayIdx + 1} of ${n}</div>
+        <h2>${esc(t.title)}</h2>
+        <p class="desc">${esc(t.desc)}</p>
+        ${recent.length ? `<div class="recent"><h4>Recent updates</h4>${recent.map(x => `
+          <div class="note"><div class="date"><span>${esc(fmtDate(x.date))}</span></div><div class="text">${esc(x.text)}</div></div>`).join('')}</div>` : ''}
+        <div class="fill"></div>
+        <form class="note-form" id="pray-note">
+          <textarea placeholder="Anything to note while you pray? (optional)" rows="2"></textarea>
+        </form>
+        <div class="progress"><div style="width:${(prayIdx / n) * 100}%"></div></div>
+        <div class="pray-nav">
+          <button class="ghost" id="pray-prev" ${prayIdx === 0 ? 'disabled' : ''}>Previous</button>
+          <span class="spacer"></span>
+          <button class="ghost" id="pray-skip">Skip</button>
+          <button class="primary" id="pray-next">Amen, next →</button>
+        </div>
+      </div>`;
+    const commitNote = () => {
+      const ta = view.querySelector('#pray-note textarea');
+      const text = ta.value.trim();
+      if (text) { t.notes.push({ id: uid(), date: new Date().toISOString(), text }); save(); }
+    };
+    $('#pray-prev').addEventListener('click', () => { commitNote(); prayIdx--; renderPray(); window.scrollTo(0, 0); });
+    $('#pray-skip').addEventListener('click', () => { commitNote(); prayIdx++; renderPray(); window.scrollTo(0, 0); });
+    $('#pray-next').addEventListener('click', () => { commitNote(); markPrayed(t); prayIdx++; renderPray(); window.scrollTo(0, 0); });
+    $('#pray-note').addEventListener('submit', e => e.preventDefault());
+  }
+  $('#btn-pray').addEventListener('click', startPray);
+  $('#btn-exit-pray').addEventListener('click', exitPray);
+
+  // ---------- export / import ----------
+  $('#btn-export').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `prayer-topics-${todayKey()}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  $('#btn-import').addEventListener('click', () => $('#file-import').click());
+  $('#file-import').addEventListener('change', e => {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data || !Array.isArray(data.topics)) throw new Error('bad file');
+        if (confirm(`Replace your current topics with ${data.topics.length} from this file?`)) {
+          state = { topics: data.topics.map(t => ({ id: t.id || uid(), title: String(t.title || 'Untitled'), desc: String(t.desc || ''), notes: Array.isArray(t.notes) ? t.notes : [], lastPrayed: t.lastPrayed || null })), open: {} };
+          save(); renderList();
+        }
+      } catch (err) { alert('That file doesn\'t look like a Prayer Topics export.'); }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // ---------- go ----------
+  renderList();
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>

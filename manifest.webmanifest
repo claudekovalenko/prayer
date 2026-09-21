@@ -1,0 +1,9 @@
+{
+  "name": "Prayer Topics",
+  "short_name": "Prayer",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f6f1e7",
+  "theme_color": "#f6f1e7",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
