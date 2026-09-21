@@ -11,14 +11,21 @@ A small, private prayer list you can open on your phone or laptop. No accounts, 
 - **Export / Import** a JSON backup so you can move your list between devices.
 - Works offline and can be added to your phone's home screen like an app.
 
-## Running it
+## Install it on your phone
 
-Open `index.html` in a browser. That's it.
+The app is deployed to GitHub Pages on every push (see `.github/workflows/pages.yml`):
 
-To use it as a home-screen app (with offline support), serve the folder over HTTP, for example:
+**https://claudekovalenko.github.io/prayer/**
+
+- **iPhone (Safari):** open the link, tap the Share button, then **Add to Home Screen**.
+- **Android (Chrome):** open the link, tap the ⋮ menu, then **Install app** or **Add to Home screen**.
+
+Once installed it opens full-screen like a native app and works offline. Your data stays in that app's storage on your phone.
+
+## Running it locally
+
+Open `index.html` in a browser, or serve the folder to get the offline service worker too:
 
 ```
 python3 -m http.server 8080
 ```
-
-then open http://localhost:8080 and choose "Add to Home Screen" in your phone's browser. GitHub Pages works too: enable Pages for this repository on the branch that has these files.
