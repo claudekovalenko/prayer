@@ -26,6 +26,10 @@
     --soft: #efe6d6;
     --good: #3f7a4f;
     --danger: #a33d3d;
+    --heat-1: #e8dcc6;
+    --heat-2: #cdb68c;
+    --heat-3: #a5854f;
+    --heat-4: #6b4f2a;
     --radius: 14px;
     --shadow: 0 1px 2px rgba(40,30,10,.06), 0 6px 20px rgba(40,30,10,.06);
   }
@@ -41,6 +45,10 @@
       --soft: #2a251f;
       --good: #7fc08f;
       --danger: #e08585;
+      --heat-1: #3a3228;
+      --heat-2: #6b5836;
+      --heat-3: #a1834f;
+      --heat-4: #d5b07c;
       --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
     }
   }
@@ -164,6 +172,63 @@
   .done-card { text-align: center; padding: 40px 20px; }
   .done-card h2 { font-size: 28px; margin-bottom: 8px; }
 
+  /* history */
+  .history { display: none; }
+  body.viewing-history .home { display: none; }
+  body.viewing-history .history { display: block; }
+  .history h1 { font-size: 28px; margin: 0 0 4px; font-weight: 600; }
+
+  .stats { display: flex; gap: 10px; margin: 0 0 18px; }
+  .stat {
+    flex: 1; background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px; text-align: center;
+  }
+  .stat .n { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; display: block; }
+  .stat .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+  .cal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .cal-head .month { flex: 1; font-size: 18px; font-weight: 600; text-align: center; }
+  .cal-head button { padding: 6px 12px; }
+  .cal {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 12px; box-shadow: var(--shadow);
+  }
+  .cal .dow { text-align: center; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; padding-bottom: 2px; }
+  .cal .day {
+    aspect-ratio: 1; border: 1px solid var(--line); border-radius: 9px;
+    background: transparent; color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-variant-numeric: tabular-nums; padding: 0;
+    cursor: pointer;
+  }
+  .cal .day.blank { border: none; cursor: default; }
+  .cal .day.h1 { background: var(--heat-1); border-color: var(--heat-1); }
+  .cal .day.h2 { background: var(--heat-2); border-color: var(--heat-2); }
+  .cal .day.h3 { background: var(--heat-3); border-color: var(--heat-3); color: var(--accent-ink); }
+  .cal .day.h4 { background: var(--heat-4); border-color: var(--heat-4); color: var(--accent-ink); font-weight: 600; }
+  .cal .day.today { box-shadow: inset 0 0 0 2px var(--muted); }
+  .cal .day.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .cal .day.future { color: var(--muted); opacity: .45; cursor: default; }
+  .legend { display: flex; align-items: center; gap: 6px; justify-content: flex-end; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .legend i { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line); display: inline-block; }
+
+  .day-detail { margin-top: 20px; }
+  .day-detail h3 { font-size: 18px; margin: 0 0 10px; font-weight: 600; }
+  .prayed-row {
+    display: flex; align-items: baseline; gap: 4px 10px; flex-wrap: wrap;
+    padding: 10px 12px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; margin-bottom: 8px;
+  }
+  .prayed-row .t { flex: 1; font-weight: 600; }
+  .prayed-row .when { font-size: 13px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .prayed-row .n { width: 100%; color: var(--muted); font-size: 15px; white-space: pre-wrap; margin-top: 2px; }
+
+  .topic-stats { font-size: 13px; color: var(--muted); margin: -4px 0 12px; }
+  .dots { display: flex; gap: 3px; margin: 8px 0 0; flex-wrap: wrap; }
+  .dots i { width: 8px; height: 8px; border-radius: 2px; background: var(--line); display: inline-block; }
+  .dots i.on { background: var(--accent); }
+
   .hidden { display: none !important; }
   .footer { margin-top: 26px; color: var(--muted); font-size: 13px; text-align: center; }
   .footer button { font-size: 13px; }
@@ -183,6 +248,7 @@
 
     <div class="toolbar">
       <button class="primary" id="btn-pray">Pray through all</button>
+      <button id="btn-history">History</button>
       <button id="btn-collapse">Collapse all</button>
     </div>
 
@@ -203,6 +269,17 @@
       <span class="spacer"></span>
     </div>
     <div id="pray-view"></div>
+  </section>
+
+  <!-- ============ HISTORY ============ -->
+  <section class="history">
+    <div class="toolbar">
+      <button class="ghost" id="btn-exit-history">← Back</button>
+      <span class="spacer"></span>
+    </div>
+    <h1>History</h1>
+    <p class="sub" id="history-summary"></p>
+    <div id="history-view"></div>
   </section>
 
 </div>
@@ -252,31 +329,58 @@
   // ---------- state ----------
   const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
+  // Older saves kept only `lastPrayed`; carry it over as the first history entry.
+  function migrate(data) {
+    data.topics.forEach(t => {
+      if (!Array.isArray(t.prayed)) t.prayed = t.lastPrayed ? [t.lastPrayed] : [];
+      t.prayed = t.prayed.filter(x => typeof x === 'string' && !isNaN(new Date(x))).sort();
+      delete t.lastPrayed;
+      if (!Array.isArray(t.notes)) t.notes = [];
+    });
+    if (!data.open || typeof data.open !== 'object') data.open = {};
+    return data;
+  }
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const data = JSON.parse(raw);
-        if (data && Array.isArray(data.topics)) return data;
+        if (data && Array.isArray(data.topics)) return migrate(data);
       }
     } catch (e) { /* ignore */ }
-    return { topics: SEED.map(t => ({ id: uid(), title: t.title, desc: t.desc, notes: [], lastPrayed: null })), open: {} };
+    return { topics: SEED.map(t => ({ id: uid(), title: t.title, desc: t.desc, notes: [], prayed: [] })), open: {} };
   }
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
   }
   let state = load();
   const $ = sel => document.querySelector(sel);
+  save(); // persist the migrated shape (and the seed topics on a first visit)
 
   // ---------- helpers ----------
-  const todayKey = () => new Date().toISOString().slice(0, 10);
+  // Day keys are local dates, so praying at 10pm counts for that evening, not
+  // the next UTC day.
+  function dayKey(d = new Date()) {
+    const x = d instanceof Date ? d : new Date(d);
+    return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+  }
+  const todayKey = () => dayKey();
+  function dateFromKey(k) { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); }
   function fmtDate(iso) {
     const d = new Date(iso);
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: d.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' });
   }
+  function fmtLongDate(d) {
+    const today = todayKey(), k = dayKey(d);
+    if (k === today) return 'Today';
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    if (k === dayKey(y)) return 'Yesterday';
+    return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: d.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' });
+  }
+  function fmtTime(iso) { return new Date(iso).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }); }
   function ago(iso) {
     if (!iso) return 'not yet prayed';
-    const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+    const days = Math.round((dateFromKey(todayKey()) - dateFromKey(dayKey(iso))) / 86400000);
     if (days <= 0) return 'prayed today';
     if (days === 1) return 'prayed yesterday';
     return `prayed ${days} days ago`;
@@ -284,8 +388,54 @@
   function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
-  function prayedToday(t) { return t.lastPrayed && t.lastPrayed.slice(0, 10) === todayKey(); }
-  function markPrayed(t) { t.lastPrayed = new Date().toISOString(); save(); }
+
+  // Each topic keeps `prayed`: the list of times it was prayed for, oldest first.
+  function prayedTimes(t) { return Array.isArray(t.prayed) ? t.prayed : []; }
+  function lastPrayed(t) { const p = prayedTimes(t); return p.length ? p[p.length - 1] : null; }
+  function prayedOn(t, key) { return prayedTimes(t).some(iso => dayKey(iso) === key); }
+  function prayedToday(t) { return prayedOn(t, todayKey()); }
+  function markPrayed(t) {
+    if (prayedToday(t)) return;
+    t.prayed = prayedTimes(t).concat(new Date().toISOString());
+    save();
+  }
+  function unmarkToday(t) {
+    const today = todayKey();
+    t.prayed = prayedTimes(t).filter(iso => dayKey(iso) !== today);
+    save();
+  }
+  // Day key -> number of topics prayed that day.
+  function dayCounts() {
+    const counts = {};
+    state.topics.forEach(t => {
+      new Set(prayedTimes(t).map(dayKey)).forEach(k => { counts[k] = (counts[k] || 0) + 1; });
+    });
+    return counts;
+  }
+  function streak(counts) {
+    const d = new Date();
+    if (!counts[dayKey(d)]) d.setDate(d.getDate() - 1); // today still counts if yesterday was prayed
+    let n = 0;
+    while (counts[dayKey(d)]) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  }
+
+  function topicStats(t) {
+    const days = new Set(prayedTimes(t).map(dayKey));
+    if (!days.size) return 'Not prayed for yet.';
+    const first = dateFromKey([...days].sort()[0]);
+    return `Prayed on ${days.size} ${days.size === 1 ? 'day' : 'days'} · since ${first.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: first.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' })}`;
+  }
+  function recentDots(t) {
+    const out = [];
+    const d = new Date(); d.setDate(d.getDate() - 13);
+    for (let i = 0; i < 14; i++) {
+      const k = dayKey(d);
+      out.push(`<i class="${prayedOn(t, k) ? 'on' : ''}" title="${esc(k)}"></i>`);
+      d.setDate(d.getDate() + 1);
+    }
+    return out.join('');
+  }
 
   // ---------- home render ----------
   function renderSummary() {
@@ -308,10 +458,12 @@
         <div class="card-head">
           <span class="chev">▸</span>
           <span class="title">${esc(t.title)}</span>
-          <span class="meta">${prayedToday(t) ? '✓ today' : esc(ago(t.lastPrayed))}</span>
+          <span class="meta">${prayedToday(t) ? '✓ today' : esc(ago(lastPrayed(t)))}</span>
         </div>
         <div class="card-body">
           <p class="desc">${esc(t.desc)}</p>
+          <p class="topic-stats">${esc(topicStats(t))}</p>
+          <div class="dots" title="The last 14 days">${recentDots(t)}</div>
           <div class="notes">
             <h4>Updates &amp; answers</h4>
             ${notes.length ? notes.map(n => `
@@ -358,7 +510,7 @@
     const act = e.target.closest('[data-act]')?.dataset.act;
     if (!act) return;
     const i = state.topics.indexOf(t);
-    if (act === 'prayed') { if (prayedToday(t)) t.lastPrayed = null; else markPrayed(t); save(); renderList(); }
+    if (act === 'prayed') { if (prayedToday(t)) unmarkToday(t); else markPrayed(t); renderList(); }
     if (act === 'edit') openModal(t);
     if (act === 'up' && i > 0) { state.topics.splice(i, 1); state.topics.splice(i - 1, 0, t); save(); renderList(); }
     if (act === 'down' && i < state.topics.length - 1) { state.topics.splice(i, 1); state.topics.splice(i + 1, 0, t); save(); renderList(); }
@@ -395,7 +547,7 @@
     const desc = $('#f-desc').value.trim();
     if (!title) { $('#f-title').focus(); return; }
     if (editing) { editing.title = title; editing.desc = desc; }
-    else { const t = { id: uid(), title, desc, notes: [], lastPrayed: null }; state.topics.push(t); state.open[t.id] = true; }
+    else { const t = { id: uid(), title, desc, notes: [], prayed: [] }; state.topics.push(t); state.open[t.id] = true; }
     save(); renderList(); closeModal();
   });
   $('#modal-delete').addEventListener('click', () => {
@@ -473,6 +625,110 @@
   $('#btn-pray').addEventListener('click', startPray);
   $('#btn-exit-pray').addEventListener('click', exitPray);
 
+  // ---------- history ----------
+  let calMonth = new Date(); calMonth.setDate(1);
+  let selectedDay = todayKey();
+
+  function renderHistory() {
+    const counts = dayCounts();
+    const allDays = Object.keys(counts);
+    const total = state.topics.length || 1;
+    const run = streak(counts);
+    const thisMonth = allDays.filter(k => k.slice(0, 7) === dayKey(calMonth).slice(0, 7)).length;
+
+    $('#history-summary').textContent = allDays.length
+      ? `You've prayed on ${allDays.length} ${allDays.length === 1 ? 'day' : 'days'} so far. Tap a day to see what you prayed for.`
+      : 'Once you start marking topics prayed, your history will build up here.';
+
+    const monthLabel = calMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    const first = new Date(calMonth.getFullYear(), calMonth.getMonth(), 1);
+    const daysInMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 0).getDate();
+    const isCurrentMonth = dayKey(calMonth).slice(0, 7) === todayKey().slice(0, 7);
+
+    const cells = [];
+    for (let i = 0; i < first.getDay(); i++) cells.push('<div class="day blank"></div>');
+    for (let d = 1; d <= daysInMonth; d++) {
+      const k = dayKey(new Date(calMonth.getFullYear(), calMonth.getMonth(), d));
+      const n = counts[k] || 0;
+      const pct = n / total;
+      const heat = n === 0 ? '' : pct >= 1 ? 'h4' : pct >= 0.6 ? 'h3' : pct >= 0.3 ? 'h2' : 'h1';
+      const future = k > todayKey();
+      const cls = ['day', heat, k === todayKey() ? 'today' : '', k === selectedDay ? 'sel' : '', future ? 'future' : ''].filter(Boolean).join(' ');
+      cells.push(`<button class="${cls}" data-day="${k}" ${future ? 'disabled' : ''} title="${n} topic${n === 1 ? '' : 's'}">${d}</button>`);
+    }
+
+    $('#history-view').innerHTML = `
+      <div class="stats">
+        <div class="stat"><span class="n">${run}</span><span class="l">Day streak</span></div>
+        <div class="stat"><span class="n">${thisMonth}</span><span class="l">Days in ${esc(calMonth.toLocaleDateString(undefined, { month: 'short' }))}</span></div>
+        <div class="stat"><span class="n">${allDays.length}</span><span class="l">Days total</span></div>
+      </div>
+      <div class="cal-head">
+        <button class="small" id="cal-prev" aria-label="Previous month">←</button>
+        <span class="month">${esc(monthLabel)}</span>
+        <button class="small" id="cal-next" aria-label="Next month" ${isCurrentMonth ? 'disabled' : ''}>→</button>
+      </div>
+      <div class="cal">
+        ${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => `<div class="dow">${d}</div>`).join('')}
+        ${cells.join('')}
+      </div>
+      <div class="legend"><span>Fewer</span><i></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i><span>All topics</span></div>
+      <div class="day-detail" id="day-detail"></div>`;
+
+    $('#cal-prev').addEventListener('click', () => { calMonth.setMonth(calMonth.getMonth() - 1); renderHistory(); });
+    $('#cal-next').addEventListener('click', () => { calMonth.setMonth(calMonth.getMonth() + 1); renderHistory(); });
+    $('#history-view').querySelectorAll('.day[data-day]').forEach(b => {
+      b.addEventListener('click', () => { selectedDay = b.dataset.day; renderHistory(); });
+    });
+    renderDayDetail();
+  }
+
+  function renderDayDetail() {
+    const prayed = state.topics
+      .filter(t => prayedOn(t, selectedDay))
+      .map(t => ({
+        t,
+        at: prayedTimes(t).filter(iso => dayKey(iso) === selectedDay).sort()[0],
+        notes: t.notes.filter(n => dayKey(n.date) === selectedDay),
+      }))
+      .sort((a, b) => a.at.localeCompare(b.at));
+    // Notes written that day on topics not marked prayed still belong to the day.
+    const extraNotes = state.topics
+      .filter(t => !prayedOn(t, selectedDay))
+      .map(t => ({ t, notes: t.notes.filter(n => dayKey(n.date) === selectedDay) }))
+      .filter(x => x.notes.length);
+
+    const d = dateFromKey(selectedDay);
+    const rows = prayed.map(({ t, at, notes }) => `
+      <div class="prayed-row">
+        <span class="t">${esc(t.title)}</span>
+        <span class="when">${esc(fmtTime(at))}</span>
+        ${notes.map(n => `<span class="n">${esc(n.text)}</span>`).join('')}
+      </div>`).join('')
+      + extraNotes.map(({ t, notes }) => `
+      <div class="prayed-row">
+        <span class="t">${esc(t.title)}</span>
+        <span class="when">note only</span>
+        ${notes.map(n => `<span class="n">${esc(n.text)}</span>`).join('')}
+      </div>`).join('');
+
+    $('#day-detail').innerHTML = `
+      <h3>${esc(fmtLongDate(d))}</h3>
+      ${rows || `<p class="empty">${selectedDay > todayKey() ? 'Still to come.' : 'Nothing recorded on this day.'}</p>`}`;
+  }
+
+  $('#btn-history').addEventListener('click', () => {
+    calMonth = new Date(); calMonth.setDate(1);
+    selectedDay = todayKey();
+    document.body.classList.add('viewing-history');
+    renderHistory();
+    window.scrollTo(0, 0);
+  });
+  $('#btn-exit-history').addEventListener('click', () => {
+    document.body.classList.remove('viewing-history');
+    renderList();
+  });
+
   // ---------- export / import ----------
   $('#btn-export').addEventListener('click', () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -491,7 +747,7 @@
         const data = JSON.parse(reader.result);
         if (!data || !Array.isArray(data.topics)) throw new Error('bad file');
         if (confirm(`Replace your current topics with ${data.topics.length} from this file?`)) {
-          state = { topics: data.topics.map(t => ({ id: t.id || uid(), title: String(t.title || 'Untitled'), desc: String(t.desc || ''), notes: Array.isArray(t.notes) ? t.notes : [], lastPrayed: t.lastPrayed || null })), open: {} };
+          state = migrate({ topics: data.topics.map(t => ({ id: t.id || uid(), title: String(t.title || 'Untitled'), desc: String(t.desc || ''), notes: Array.isArray(t.notes) ? t.notes : [], prayed: Array.isArray(t.prayed) ? t.prayed : [], lastPrayed: t.lastPrayed || null })), open: {} });
           save(); renderList();
         }
       } catch (err) { alert('That file doesn\'t look like a Prayer Topics export.'); }

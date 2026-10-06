@@ -1,6 +1,6 @@
 // Offline cache: the app shell is cached on install, refreshed from the
 // network when available, and served from cache when offline.
-const CACHE = 'prayer-topics-v2';
+const CACHE = 'prayer-topics-v3';
 const FILES = [
   './', './index.html', './manifest.webmanifest', './icon.svg',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png',
