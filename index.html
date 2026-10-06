@@ -322,9 +322,13 @@
       desc: 'For God\'s leading, protection, and blessing over the Ephesus house and everyone in it.' },
     { title: 'Neighbors & nations',
       desc: 'For my neighbors to encounter Jesus, and for the gospel to reach every nation.' },
+    { title: 'My seminary', v: 2,
+      desc: 'For my studies: focus, understanding, and the time and provision to do them well. That what I learn would deepen my love for God rather than dry it out. And for the school itself, my professors and classmates, and where all of this is leading.' },
     { title: 'Continued clarity in God\'s leading',
       desc: 'That God would keep leading and guiding me clearly, and that I would follow him with an open hand.' },
   ];
+  // Bumped when a topic is added to SEED, so existing saves pick it up once.
+  const SEED_VERSION = 2;
 
   // ---------- state ----------
   const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
@@ -338,6 +342,15 @@
       if (!Array.isArray(t.notes)) t.notes = [];
     });
     if (!data.open || typeof data.open !== 'object') data.open = {};
+    // Topics added to SEED after this save was created get appended once. The
+    // stored version then matches, so a topic deleted later stays deleted.
+    const seen = new Set(data.topics.map(t => String(t.title).trim().toLowerCase()));
+    const from = Number(data.seedVersion) || 1;
+    if (from < SEED_VERSION) {
+      SEED.filter(s => (s.v || 1) > from && !seen.has(s.title.trim().toLowerCase()))
+        .forEach(s => data.topics.push({ id: uid(), title: s.title, desc: s.desc, notes: [], prayed: [] }));
+    }
+    data.seedVersion = SEED_VERSION;
     return data;
   }
   function load() {
@@ -348,7 +361,7 @@
         if (data && Array.isArray(data.topics)) return migrate(data);
       }
     } catch (e) { /* ignore */ }
-    return { topics: SEED.map(t => ({ id: uid(), title: t.title, desc: t.desc, notes: [], prayed: [] })), open: {} };
+    return { topics: SEED.map(t => ({ id: uid(), title: t.title, desc: t.desc, notes: [], prayed: [] })), open: {}, seedVersion: SEED_VERSION };
   }
   function save() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
