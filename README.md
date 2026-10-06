@@ -7,6 +7,8 @@ A small, private prayer list you can open on your phone or laptop. No accounts, 
 - Keeps a list of your big prayer topics, seeded with the ones you shared.
 - Each topic has a short description and a log of **updates and answers** you can add over time, so you can see how God has been leading.
 - **Pray through all** walks you one topic at a time, shows recent updates, lets you jot a note, and marks each one prayed.
+- **The Lord's Prayer** is a second guided walk: the six movements of Matthew 6:9-13, each with prompts for what that line opens up, and room to write as you go.
+- **History** shows a month calendar shaded by how many topics you prayed each day, with a dot on the days you prayed the Lord's Prayer. Tap any day to see what you prayed for, when, and anything you wrote.
 - Add, edit, reorder, and delete topics.
 - **Export / Import** a JSON backup so you can move your list between devices.
 - Works offline and can be added to your phone's home screen like an app.
